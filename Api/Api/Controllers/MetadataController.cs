@@ -1,4 +1,6 @@
-﻿using Application.ServiceInterface;
+﻿using Api.Requests;
+using Application.ServiceInterface;
+using Core.Domain.DTOS;
 using Core.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,14 +22,30 @@ public class MetadataController : Controller
     {
         return Ok(await _service.GetFilesAsync());
     }
-    [HttpDelete("{id}")]
-    public async Task<List<FileEntity>> DeleteAsync([FromRoute]Guid id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult> GetOneFile(Guid id)
     {
-        return await _service.DeleteAsync(id);
+        return Ok(await _service.GetOneFileAsync(id));
+    }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAsync([FromRoute]Guid id)
+    {
+       await _service.DeleteAsync(id);
+        return NoContent();
     }
     [HttpPut]
-    public async Task<FileEntity> EditAsync([FromBody] FileEntity obj)
+    public async Task<IActionResult> EditAsync([FromBody] EditRequest request)
     {
-        return await _service.EditAsync(obj);
+        var file = new MetadataEditDTO(request.Id, request.Name, request.Type);
+        await _service.EditAsync(file);
+        return NoContent();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> PostAsync([FromBody]PostRequest request )
+    {
+        var file = new MetadataPostDTO(request.Name, request.Type);
+        await _service.PostAsync(file);
+        return NoContent();
     }
 }

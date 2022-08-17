@@ -11,7 +11,8 @@ namespace Core.Domain.Abstractions
     {
         Task<List<FileEntity>> GetFilesAsync();
         Task<FileEntity> GetOneFile(Guid id);
-        Task<List<FileEntity>> DeleteFileAsync(FileEntity obj);
-        Task<FileEntity> EditFileAsync(FileEntity obj);
+        Task DeleteFileAsync(FileEntity obj);
+        Task EditFileAsync(FileEntity obj);
+        Task PostFileAsync(FileEntity obj);
     }
 }

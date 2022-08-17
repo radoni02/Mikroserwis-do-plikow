@@ -4,20 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Domain.Models
+namespace Core.Domain.DTOS
 {
-    public class FileEntity
+    public class MetadataEditDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public DateTime Time { get; init; }
-        public DateTime? UpdateTime { get; set; }
         public string Type { get; set; }
-        public FileEntity( string name,string type)
+
+        public DateTime UpdateTime {get;set;}
+        public MetadataEditDTO(Guid id, string name, string type)
         {
+            Id = id;
             Name = name;
             Type = type;
         }
     }
-
+    
 }

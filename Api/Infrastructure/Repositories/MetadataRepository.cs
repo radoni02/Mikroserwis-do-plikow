@@ -30,18 +30,23 @@ namespace Infrastructure.Repositories
             var file = await _db.Files.FindAsync(id);
             return file;
         }
-        public async Task<List<FileEntity>> DeleteFileAsync(FileEntity obj)
+        public async Task DeleteFileAsync(FileEntity obj)
         {
             _db.Files.Remove(obj);
             await _db.SaveChangesAsync();
-            return await _db.Files.ToListAsync();
+            await _db.Files.ToListAsync();
         }
 
-        public async Task<FileEntity> EditFileAsync(FileEntity obj)
+        public async Task EditFileAsync(FileEntity obj)
         {
             _db.Files.Update(obj);
             await _db.SaveChangesAsync();
-            return obj;
+        }
+
+        public async Task PostFileAsync(FileEntity obj)
+        {
+            await _db.Files.AddAsync(obj);
+            await _db.SaveChangesAsync();
         }
     }
 }

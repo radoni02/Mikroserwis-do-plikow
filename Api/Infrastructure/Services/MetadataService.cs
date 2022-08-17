@@ -1,7 +1,9 @@
 ﻿using Application.ServiceInterface;
 using Core.Domain.Abstractions;
+using Core.Domain.DTOS;
 using Core.Domain.Models;
 using Infrastructure.Data;
+using Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,20 +25,51 @@ namespace Infrastructure.Service
             
             return await _repo.GetFilesAsync();
         }
-        public async Task<FileEntity> GetOneFile(Guid id)
-        {
-            return await _repo.GetOneFile(id);
-        }
-        public async Task<List<FileEntity>> DeleteAsync(Guid id)
+        public async Task<FileEntity> GetOneFileAsync(Guid id)
         {
             var file = await _repo.GetOneFile(id);
-            return await _repo.DeleteFileAsync(file);
+            if(file==null)
+            {
+                throw new BadInputException(id);
+            }
+            return file;
+        }
+        public async Task DeleteAsync(Guid id)
+        {
+            
+            var file = await _repo.GetOneFile(id);
+            if (file == null)
+            {
+                throw new BadInputException(id);
+            }
+            await _repo.DeleteFileAsync(file);
         }
 
-        public async Task<FileEntity> EditAsync(FileEntity obj)
+        public async Task EditAsync(MetadataEditDTO obj)
         {
-            var file =await _repo.GetOneFile(obj.Id);
-            return await _repo.EditFileAsync(file);
+            if (obj== null)
+            {
+                throw new EmptyInputException();
+            }
+            var file = await _repo.GetOneFile(obj.Id);
+            if (file == null)
+            {
+                throw new EmptyInputException();
+            }
+            file.Id = obj.Id;
+            file.Name = obj.Name;
+            file.Type = obj.Type;
+            file.UpdateTime = DateTime.Now;
+            await _repo.EditFileAsync(file);
+        }
+        public async Task PostAsync(MetadataPostDTO obj)
+        {
+            if (obj == null)
+            {
+                throw new EmptyInputException();
+            }
+            var file = new FileEntity(obj.Name, obj.Type);
+            await _repo.PostFileAsync(file);
         }
     }
 }

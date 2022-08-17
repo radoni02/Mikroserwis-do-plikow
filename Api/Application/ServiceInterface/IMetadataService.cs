@@ -1,4 +1,5 @@
-﻿using Core.Domain.Models;
+﻿using Core.Domain.DTOS;
+using Core.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,9 @@ namespace Application.ServiceInterface
     public interface IMetadataService
     {
         Task<List<FileEntity>> GetFilesAsync();
-        Task<FileEntity> GetOneFile(Guid id);
-        Task<List<FileEntity>> DeleteAsync(Guid id);
-        Task<FileEntity> EditAsync(FileEntity obj);
+        Task<FileEntity> GetOneFileAsync(Guid id);
+        Task DeleteAsync(Guid id);
+        Task EditAsync(MetadataEditDTO obj);
+        Task PostAsync(MetadataPostDTO obj);
     }
 }
