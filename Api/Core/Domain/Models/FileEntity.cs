@@ -15,6 +15,7 @@ namespace Core.Domain.Models
         public string Type { get; set; }
         public FileEntity( string name,string type)
         {
+            Time = DateTime.Now;
             Name = name;
             Type = type;
         }

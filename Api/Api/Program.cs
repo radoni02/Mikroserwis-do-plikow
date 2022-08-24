@@ -7,7 +7,7 @@ using Infrastructure.Service;
 using Infrastructure.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
-
+//builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(8001));
 // Add services to the container.
 builder.Services.AddScoped<ExceptionMiddleware>();
 
@@ -29,14 +29,17 @@ var app = builder.Build();
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);     // DateTime bez tego nie dzia³a³ z jakiegos powodu
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
