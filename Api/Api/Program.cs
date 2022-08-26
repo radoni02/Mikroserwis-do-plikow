@@ -5,6 +5,7 @@ using Infrastructure.Repositories;
 using Application.ServiceInterface;
 using Infrastructure.Service;
 using Infrastructure.Exceptions;
+using Infrastructure.MinIO;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(8001));
@@ -14,6 +15,7 @@ builder.Services.AddScoped<ExceptionMiddleware>();
 builder.Services.AddScoped<IMetaDataRepository, MetadataRepository>();
 builder.Services.AddScoped<IMetadataService, MetadataService>();
 builder.Services.AddControllers();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 
 //builder.Services.AddDbContext<DataContext>(options =>
