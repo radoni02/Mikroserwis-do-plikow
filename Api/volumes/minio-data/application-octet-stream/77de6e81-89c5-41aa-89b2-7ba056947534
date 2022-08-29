@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /app
+
+COPY Lapka.Files.Api/Lapka.Files.Api.csproj Lapka.Files.Api/Lapka.Files.Api.csproj
+COPY Lapka.Files.Core/Lapka.Files.Core.csproj Lapka.Files.Core/Lapka.Files.Core.csproj
+COPY Lapka.Files.Infrastructure/Lapka.Files.Infrastructure.csproj Lapka.Files.Infrastructure/Lapka.Files.Infrastructure.csproj
+RUN dotnet restore Lapka.Files.Api
+
+COPY . .
+RUN dotnet publish Lapka.Files.Api -c release -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+COPY --from=build /app/out .
+
+ARG BUILD_VERSION
+ENV BUILD_VERSION $BUILD_VERSION
+
+ENTRYPOINT ["dotnet", "Lapka.Files.Api.dll"]

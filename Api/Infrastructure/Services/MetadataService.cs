@@ -6,6 +6,7 @@ using Core.Domain.Models;
 using Infrastructure.Data;
 using Infrastructure.Exceptions;
 using Infrastructure.MinIO;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -26,11 +27,13 @@ namespace Infrastructure.Service
             _repo = repo;
             _minio = minio;
         }
+
         public async Task<List<FileEntity>> GetFilesAsync()
         {
             
             return await _repo.GetFilesAsync();
         }
+
         public async Task<FileEntity> GetOneFileAsync(Guid id)
         {
             var file = await _repo.GetOneFile(id);
@@ -40,6 +43,7 @@ namespace Infrastructure.Service
             }
             return file;
         }
+
         public async Task DeleteAsync(Guid id)
         {
             var file = await _repo.GetOneFile(id);
@@ -51,25 +55,22 @@ namespace Infrastructure.Service
             await _repo.DeleteFileAsync(file);
         }
 
-        public async Task EditAsync(IFormFile fromFile, Guid id/*MetadataEditDTO obj*/)
+        public async Task EditAsync(IFormFile fromFile, Guid id)
         {
-            //if (obj== null)
-            //{
-            //    throw new EmptyInputException();
-            //}
-            var file = await _repo.GetOneFile(/*obj.Id*/id);
+            var file = await _repo.GetOneFile(id);
             if (file == null)
             {
                 throw new EmptyInputException();
             }
-            file.Id = id;/*obj.Id;*/
+            file.Id = id;
             file.Name = fromFile.FileName;
             file.Type = fromFile.ContentType;
             file.UpdateTime = DateTime.Now;
-            await _minio.DeleteFileAsync(file.Type,file.Id);
-            await _minio.UpoladFileAsync(fromFile,file.Id);
+            await _minio.DeleteFileAsync(file.Type, file.Id);
+            await _minio.UpoladFileAsync(fromFile, file.Id);
             await _repo.EditFileAsync(file);
         }
+
         public async Task PostAsync(IFormFile fromFile)
         {
             var file = new FileEntity(fromFile.FileName, fromFile.ContentType);
@@ -77,7 +78,7 @@ namespace Infrastructure.Service
             {
                 throw new EmptyInputException();
             }
-            await _minio.UpoladFileAsync(fromFile,file.Id);
+            await _minio.UpoladFileAsync(fromFile, file.Id);
             await _repo.PostFileAsync(file);
         }
 

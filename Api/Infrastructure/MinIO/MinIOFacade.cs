@@ -1,4 +1,6 @@
 ﻿using Application.FileModels;
+using Infrastructure.Exceptions;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Minio;
 using System;
@@ -13,21 +15,21 @@ namespace Infrastructure.MinIO
     public class MinIOFacade : IMinIOFacade
     {
         private readonly MinioClient _minio;
-        //private readonly MinIOParameters _parameters;
-        public MinIOFacade(MinIOParameters parameters)
+        private readonly FileRules  _fileRules;
+        public MinIOFacade(MinIOParameters parameters,FileRules fileRules)
         {
-            //_parameters = parameters;
             _minio = new MinioClient()
                    .WithEndpoint(parameters.Endpoint,parameters.Port)
                    .WithCredentials(parameters.AccessKey,parameters.SecretKey)
-                   //.WithSSL()
                    .Build();
+            _fileRules = fileRules;
         }
 
         public async Task UpoladFileAsync(IFormFile file, Guid fileId)
         {
+          
             await using var stream = file.OpenReadStream();
-            var bucketName = CreateBucketName(file.ContentType);
+            var bucketName = CreateBucketName(file.FileName);
             await BucktExist(bucketName);
 
             var args = new PutObjectArgs()
@@ -42,7 +44,7 @@ namespace Infrastructure.MinIO
             }
             catch
             {
-                throw new Exception();
+                throw new UnableToUplaodFileException(fileId);
             }
 
 
@@ -61,11 +63,11 @@ namespace Infrastructure.MinIO
                 });
             try
             {
-            await _minio.GetObjectAsync(args);
+                await _minio.GetObjectAsync(args);
             }
             catch
             {
-                throw new Exception();
+                throw new UnableToDownladException(filePayload.MinioID);
             }
 
 
@@ -84,7 +86,7 @@ namespace Infrastructure.MinIO
             }
             catch
             {
-                throw new Exception();
+                throw new UnableToDeleteException(minioId);
             }
         }
         public async Task BucktExist(string bucketName)
@@ -97,6 +99,12 @@ namespace Infrastructure.MinIO
         }
         private string CreateBucketName(string OldName)
         {
+            var oName = _fileRules.NameTolower(OldName);
+            oName = _fileRules.ChangeFileName(OldName);
+            if (_fileRules.Isvalid(oName) == false)
+            {
+                throw new InvalidTypeException(oName);
+            }
             var rgx = new Regex("[^a-zA-Z0-9 -]");
             string newName = rgx.Replace(OldName, "-").ToLower();
             return newName;
